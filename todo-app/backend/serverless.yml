@@ -42,11 +42,15 @@ functions:
       - http:
           method: post
           path: todos
+          request:
+            schemas:
+              application/json: ${file(src/model/todo-create-request.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
         - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+
 
   # TODO: Configure this function
   UpdateTodo:
