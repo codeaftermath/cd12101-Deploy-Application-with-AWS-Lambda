@@ -1,16 +1,23 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: codeaftermath
 service: serverless-todo-app
 
 plugins:
   - serverless-iam-roles-per-function
 
-frameworkVersion: '4'
+frameworkVersion: "4"
 
 provider:
   name: aws
   runtime: nodejs20.x
 
-functions:
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
 
+  environment:
+    TODOS_TABLE: Todos-${self:provider.stage}
+
+functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
@@ -21,6 +28,12 @@ functions:
       - http:
           method: get
           path: todos
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+        - dynamodb:Scan
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+
 
   # TODO: Configure this function
   CreateTodo:
@@ -29,6 +42,11 @@ functions:
       - http:
           method: post
           path: todos
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+        - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
   # TODO: Configure this function
   UpdateTodo:
@@ -56,4 +74,18 @@ functions:
 
 resources:
   Resources:
-    # TODO: Add any necessary AWS resources
+    todosDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: todoId
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: todoId
+            KeyType: HASH
+          - AttributeName: createdAt
+            KeyType: RANGE
+        TableName: ${self:provider.environment.TODOS_TABLE}
+        BillingMode: PAY_PER_REQUEST
