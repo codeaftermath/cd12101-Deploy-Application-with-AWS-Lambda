@@ -1,5 +1,10 @@
 import { DynamoDB } from '@aws-sdk/client-dynamodb'
-import { ScanCommand, PutCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb'
+import {
+  DeleteCommand,
+  ScanCommand,
+  PutCommand,
+  DynamoDBDocumentClient
+} from '@aws-sdk/lib-dynamodb'
 
 export class TodoRepository {
   constructor(
@@ -11,12 +16,13 @@ export class TodoRepository {
     this.docClient = DynamoDBDocumentClient.from(client)
   }
 
-  async createTodo(newItem) {
+  async upsertTodo(item) {
     const putCommand = new PutCommand({
       TableName: this.tableName,
-      Item: newItem
+      Item: item
     })
     await this.docClient.send(putCommand)
+    return item
   }
 
   async getTodos() {
@@ -25,5 +31,17 @@ export class TodoRepository {
     })
     const result = await this.docClient.send(scanCommand)
     return result.Items
+  }
+
+  async deleteTodo(todoId) {
+    const deleteCommand = new DeleteCommand({
+      TableName: this.tableName,
+      Key: {
+        todoId: todoId
+      },
+      ReturnValues: 'ALL_OLD'
+    })
+    const result = await this.docClient.send(deleteCommand)
+    return result.Attributes
   }
 }

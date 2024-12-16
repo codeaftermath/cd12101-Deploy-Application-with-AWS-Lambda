@@ -1,8 +1,16 @@
+import * as todoService from '../../service/todoService.js'
 
-export function handler(event) {
+export async function handler(event) {
+  console.log('Delete Event', event)
   const todoId = event.pathParameters.todoId
-
-  // TODO: Remove a TODO item by id
-  return undefined
+  const deletedItem = await todoService.deleteTodo(todoId)
+  return {
+    statusCode: 201,
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    },
+    body: JSON.stringify({
+      deletedItem
+    })
+  }
 }
-

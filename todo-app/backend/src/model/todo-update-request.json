@@ -1,8 +1,11 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "todo-create-request",
+  "title": "todo-update-request",
   "type": "object",
   "properties": {
+    "todoId": {
+      "type": "string"
+    },
     "name": {
       "type": "string"
     },
@@ -16,6 +19,6 @@
       "type": "string"
     }
   },
-  "required": ["name", "dueDate", "done"],
+  "required": ["todoId", "name", "dueDate", "done"],
   "additionalProperties": false
 }

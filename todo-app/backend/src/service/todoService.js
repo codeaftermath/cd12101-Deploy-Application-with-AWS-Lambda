@@ -11,10 +11,21 @@ export async function createTodo(newItem) {
     attachmentUrl: '',
     ...newItem
   }
-  await todoRepository.createTodo(todoItem)
-  return todoItem
+  return todoRepository.upsertTodo(todoItem)
 }
 
 export async function getAllTodos() {
   return todoRepository.getTodos()
+}
+
+export async function updateTodo(updatedTodo) {
+  const todoItem = {
+    attachmentUrl: '',
+    ...updatedTodo
+  }
+  return todoRepository.upsertTodo(todoItem)
+}
+
+export async function deleteTodo(todoId) {
+  return todoRepository.deleteTodo(todoId)
 }

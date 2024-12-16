@@ -59,6 +59,14 @@ functions:
       - http:
           method: patch
           path: todos/{todoId}
+          request:
+            schemas:
+              application/json: ${file(src/model/todo-update-request.json)}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+        - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
   # TODO: Configure this function
   DeleteTodo:
@@ -67,6 +75,11 @@ functions:
       - http:
           method: delete
           path: todos/{todoId}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+        - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
   # TODO: Configure this function
   GenerateUploadUrl:
@@ -84,12 +97,8 @@ resources:
         AttributeDefinitions:
           - AttributeName: todoId
             AttributeType: S
-          - AttributeName: createdAt
-            AttributeType: S
         KeySchema:
           - AttributeName: todoId
             KeyType: HASH
-          - AttributeName: createdAt
-            KeyType: RANGE
         TableName: ${self:provider.environment.TODOS_TABLE}
         BillingMode: PAY_PER_REQUEST
