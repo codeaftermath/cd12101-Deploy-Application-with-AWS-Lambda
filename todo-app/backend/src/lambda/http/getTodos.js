@@ -5,7 +5,7 @@ export async function handler(event) {
   return {
     statusCode: 201,
     body: JSON.stringify({
-      items: result,
+      items: result
     })
   }
 }
