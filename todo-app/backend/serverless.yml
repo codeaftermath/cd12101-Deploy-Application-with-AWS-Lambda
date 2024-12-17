@@ -27,8 +27,7 @@ functions:
         - ssm:GetParameter
         - ssm:GetParameters
         - ssm:GetParametersByPath
-        Resource: arn:aws:ssm:${self:provider.region}:*:parameter/udacity-todo-app/${self:provider.stage}/auth0ServiceUrl
-
+        Resource: arn:aws:ssm:${self:provider.region}:*:parameter${self:provider.environment.AUTH0_URL_SSM_PATH}
 
   # TODO: Configure this function
   GetTodos:
@@ -43,7 +42,6 @@ functions:
         Action:
         - dynamodb:Scan
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-
 
   # TODO: Configure this function
   CreateTodo:
