@@ -1,15 +1,14 @@
 import Axios from 'axios'
 import jsonwebtoken from 'jsonwebtoken'
 import { createLogger } from '../../utils/logger.mjs'
+import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm'
 
 const logger = createLogger('auth')
-
-const jwksUrl = 'https://test-endpoint.auth0.com/.well-known/jwks.json'
 
 export async function handler(event) {
   try {
     const jwtToken = await verifyToken(event.authorizationToken)
-
+    
     return {
       principalId: jwtToken.sub,
       policyDocument: {
@@ -43,11 +42,22 @@ export async function handler(event) {
 }
 
 async function verifyToken(authHeader) {
+  const jwksUrl = getJwksUrl()
   const token = getToken(authHeader)
   const jwt = jsonwebtoken.decode(token, { complete: true })
-
-  // TODO: Implement token verification
-  return undefined;
+  const kid = jwt.header.kid
+  let certificate = ''
+  const response = await Axios.get(jwksUrl)
+  for (const keySet of response.data.keys) {
+    if (kid == keySet.kid) {
+      const certString = keySet.x5c[0]
+      certificate = `-----BEGIN CERTIFICATE-----\n${certString
+        .match(/.{1,64}/g)
+        .join('\n')}\n-----END CERTIFICATE-----`
+      break
+    }
+  }
+  return jsonwebtoken.verify(token, certificate, { algorithms: ['RS256'] })
 }
 
 function getToken(authHeader) {
@@ -60,4 +70,15 @@ function getToken(authHeader) {
   const token = split[1]
 
   return token
+}
+
+async function getJwksUrl() {
+  const client = new SSMClient()
+  const response = await client.send(
+    new GetParameterCommand({
+      Name: process.env.AUTH0_URL_SSM_PATH
+    })
+  )
+  const auth0Url = response.Parameter.Value.trim()
+  return `${auth0Url}/.well-known/jwks.json`
 }

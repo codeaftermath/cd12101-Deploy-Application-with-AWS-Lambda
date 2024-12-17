@@ -16,10 +16,19 @@ provider:
 
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}
+    AUTH0_URL_SSM_PATH: /udacity-todo-app/${self:provider.stage}/auth0ServiceUrl
 
 functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+        - ssm:GetParameter
+        - ssm:GetParameters
+        - ssm:GetParametersByPath
+        Resource: arn:aws:ssm:${self:provider.region}:*:parameter/udacity-todo-app/${self:provider.stage}/auth0ServiceUrl
+
 
   # TODO: Configure this function
   GetTodos:
@@ -28,6 +37,7 @@ functions:
       - http:
           method: get
           path: todos
+          authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
