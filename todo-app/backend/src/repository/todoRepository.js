@@ -6,6 +6,9 @@ import {
   DynamoDBDocumentClient
 } from '@aws-sdk/lib-dynamodb'
 
+import { createLogger } from '../utils/logger.mjs'
+
+const logger = createLogger('todoRepository')
 export class TodoRepository {
   constructor(
     client = new DynamoDB(),
@@ -35,6 +38,11 @@ export class TodoRepository {
     }
     const command = new ScanCommand(input)
     const result = await this.docClient.send(command)
+    logger.info('Todo Query Result count', {
+      tableName: this.tableName,
+      userId,
+      count: result.Items.length
+    })
     return result.Items
   }
 
