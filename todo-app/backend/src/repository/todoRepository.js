@@ -25,11 +25,16 @@ export class TodoRepository {
     return item
   }
 
-  async getTodos() {
-    const scanCommand = new ScanCommand({
+  async getTodos(userId) {
+    const input = {
+      ExpressionAttributeValues: {
+        ':userId': userId
+      },
+      FilterExpression: 'userId = :userId',
       TableName: this.tableName
-    })
-    const result = await this.docClient.send(scanCommand)
+    }
+    const command = new ScanCommand(input)
+    const result = await this.docClient.send(command)
     return result.Items
   }
 

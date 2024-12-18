@@ -8,14 +8,16 @@ export async function createTodo(newItem) {
   const todoItem = {
     todoId,
     createdAt: new Date().toISOString(),
+    dueDate: '',
+    done: false,
     attachmentUrl: '',
     ...newItem
   }
   return todoRepository.upsertTodo(todoItem)
 }
 
-export async function getAllTodos() {
-  return todoRepository.getTodos()
+export async function getAllTodos(userId) {
+  return todoRepository.getTodos(userId)
 }
 
 export async function updateTodo(updatedTodo) {

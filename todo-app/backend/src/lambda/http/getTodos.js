@@ -1,8 +1,9 @@
 import * as todoService from '../../service/todoService.js'
+import { getUserId } from '../utils.mjs'
 
 export async function handler(event) {
-  console.log(event)
-  const result = await todoService.getAllTodos()
+  const userId = getUserId(event)
+  const result = await todoService.getAllTodos(userId)
   return {
     statusCode: 201,
     headers: {
