@@ -19,16 +19,31 @@ export class TodoRepository {
     this.docClient = DynamoDBDocumentClient.from(client)
   }
 
-  async upsertTodo(userId, item) {
+  async upsertTodo(userId, todo) {
     const putCommand = new PutCommand({
       TableName: this.tableName,
       Item: {
         userId,
-        ...item
+        ...todo
       }
     })
+    logger.info('Updating todo item', {
+      tableName: this.tableName,
+      user: userId,
+      todoId: todo.todoId
+    })
+    logger.info('Upserting todo item', {
+      tableName: this.tableName,
+      user: userId,
+      ...todo
+    })
     await this.docClient.send(putCommand)
-    return item
+    logger.info('Upserted todo item', {
+      tableName: this.tableName,
+      user: userId,
+      todoId: todo.todoId
+    })
+    return todo
   }
 
   async getTodos(userId) {
@@ -57,7 +72,17 @@ export class TodoRepository {
       },
       ReturnValues: 'ALL_OLD'
     })
+    logger.info('Deleting Todo', {
+      tableName: this.tableName,
+      userId,
+      todoId
+    })
     const result = await this.docClient.send(deleteCommand)
+    logger.info('Deleted Todo', {
+      tableName: this.tableName,
+      user: userId,
+      todoId
+    })
     return result.Attributes
   }
 }
