@@ -97,8 +97,7 @@ export function Todos() {
         scope: 'write:todo'
       })
       await patchTodo(accessToken, todo.todoId, {
-        name: todo.name,
-        dueDate: todo.dueDate,
+        ...todo,
         done: !todo.done
       })
       setTodos(
@@ -108,7 +107,7 @@ export function Todos() {
       )
     } catch (e) {
       console.log('Failed to check a TODO', e)
-      alert('Todo deletion failed')
+      alert('Todo update failed')
     }
   }
 

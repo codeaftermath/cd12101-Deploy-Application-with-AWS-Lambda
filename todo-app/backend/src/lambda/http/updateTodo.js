@@ -13,7 +13,7 @@ export async function handler(event) {
   }
   logger.info('Creating todo', {
     userId,
-    newTodo
+    updatedTodo
   })
   const result = await todoService.updateTodo(userId, updatedTodo)
   return {
