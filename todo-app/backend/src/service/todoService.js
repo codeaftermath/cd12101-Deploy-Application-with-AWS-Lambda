@@ -3,7 +3,7 @@ import { TodoRepository } from '../repository/todoRepository.js'
 
 const todoRepository = new TodoRepository()
 
-export async function createTodo(newItem) {
+export async function createTodo(userId, newItem) {
   const todoId = uuid.v4()
   const todoItem = {
     todoId,
@@ -13,19 +13,19 @@ export async function createTodo(newItem) {
     attachmentUrl: '',
     ...newItem
   }
-  return todoRepository.upsertTodo(todoItem)
+  return todoRepository.upsertTodo(userId, todoItem)
 }
 
 export async function getAllTodos(userId) {
   return todoRepository.getTodos(userId)
 }
 
-export async function updateTodo(updatedTodo) {
+export async function updateTodo(userId, updatedTodo) {
   const todoItem = {
     attachmentUrl: '',
     ...updatedTodo
   }
-  return todoRepository.upsertTodo(todoItem)
+  return todoRepository.upsertTodo(userId, todoItem)
 }
 
 export async function deleteTodo(todoId) {

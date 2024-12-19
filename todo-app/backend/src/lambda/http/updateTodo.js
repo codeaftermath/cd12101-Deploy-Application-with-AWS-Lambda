@@ -1,12 +1,21 @@
 import * as todoService from '../../service/todoService.js'
+import { getUserId } from '../utils.mjs'
+import { createLogger } from '../../utils/logger.mjs'
+
+const logger = createLogger('updateTodoHandler')
 
 export async function handler(event) {
+  const userId = getUserId(event)
   const todoId = event.pathParameters.todoId
   const updatedTodo = {
     todoId,
     ...JSON.parse(event.body)
   }
-  const result = await todoService.updateTodo(updatedTodo)
+  logger.info('Creating todo', {
+    userId,
+    newTodo
+  })
+  const result = await todoService.updateTodo(userId, updatedTodo)
   return {
     statusCode: 201,
     headers: {

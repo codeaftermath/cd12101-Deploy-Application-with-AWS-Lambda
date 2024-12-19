@@ -19,10 +19,13 @@ export class TodoRepository {
     this.docClient = DynamoDBDocumentClient.from(client)
   }
 
-  async upsertTodo(item) {
+  async upsertTodo(userId, item) {
     const putCommand = new PutCommand({
       TableName: this.tableName,
-      Item: item
+      Item: {
+        userId,
+        ...item
+      }
     })
     await this.docClient.send(putCommand)
     return item
