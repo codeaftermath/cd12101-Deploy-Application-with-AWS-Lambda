@@ -20,6 +20,10 @@ export async function getAllTodos(userId) {
   return todoRepository.getTodos(userId)
 }
 
+export async function getTodo(userId, todoId) {
+  return todoRepository.getTodo(userId, todoId)
+}
+
 export async function updateTodo(userId, updatedTodo) {
   const todoItem = {
     attachmentUrl: '',

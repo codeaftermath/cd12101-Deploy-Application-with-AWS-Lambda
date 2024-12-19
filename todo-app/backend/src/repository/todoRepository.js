@@ -1,6 +1,7 @@
 import { DynamoDB } from '@aws-sdk/client-dynamodb'
 import {
   DeleteCommand,
+  GetCommand,
   QueryCommand,
   PutCommand,
   DynamoDBDocumentClient
@@ -44,6 +45,24 @@ export class TodoRepository {
       todoId: todo.todoId
     })
     return todo
+  }
+
+  async getTodo(userId, todoId) {
+    const input = {
+      Key: {
+        userId,
+        todoId
+      },
+      TableName: this.tableName
+    }
+    const command = new GetCommand(input)
+    const result = await this.docClient.send(command)
+    logger.info('Get Todo Item', {
+      tableName: this.tableName,
+      userId,
+      found: !!result.Item
+    })
+    return result.Item
   }
 
   async getTodos(userId) {
