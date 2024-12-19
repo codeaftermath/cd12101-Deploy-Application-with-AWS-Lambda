@@ -48,7 +48,7 @@ export function EditTodo() {
         audience: `https://${domain}/api/v2/`,
         scope: 'write:todos'
       })
-      const uploadUrl = await getUploadUrl(accessToken, todoId)
+      const uploadUrl = await getUploadUrl(accessToken, todoId, file.name)
 
       setUploadState(UploadState.UploadingFile)
       await uploadFile(uploadUrl, file)
