@@ -28,6 +28,6 @@ export async function updateTodo(userId, updatedTodo) {
   return todoRepository.upsertTodo(userId, todoItem)
 }
 
-export async function deleteTodo(todoId) {
-  return todoRepository.deleteTodo(todoId)
+export async function deleteTodo(userId, todoId) {
+  return todoRepository.deleteTodo(userId, todoId)
 }

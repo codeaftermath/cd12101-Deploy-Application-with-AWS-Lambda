@@ -64,7 +64,7 @@ export class TodoRepository {
     return result.Items
   }
 
-  async deleteTodo(todoId) {
+  async deleteTodo(userId, todoId) {
     const deleteCommand = new DeleteCommand({
       TableName: this.tableName,
       Key: {
