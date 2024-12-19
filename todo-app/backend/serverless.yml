@@ -16,6 +16,7 @@ provider:
 
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}
+    TODOS_CREATED_AT_INDEX: CreatedAtIndex
     AUTH0_URL_SSM_PATH: /udacity-todo-app/${self:provider.stage}/auth0ServiceUrl
     IMAGES_S3_BUCKET: ml-todo-app-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 60
@@ -42,7 +43,7 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-        - dynamodb:Scan
+        - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
   CreateTodo:
@@ -61,7 +62,6 @@ functions:
         Action:
         - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-
 
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
@@ -110,17 +110,33 @@ functions:
 
 resources:
   Resources:
-    todosDynamoDbTable:
+    TodosTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
           - AttributeName: todoId
             AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
         KeySchema:
-          - AttributeName: todoId
+          - AttributeName: userId
             KeyType: HASH
-        TableName: ${self:provider.environment.TODOS_TABLE}
+          - AttributeName: todoId
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.TODOS_TABLE}
+        LocalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL # What attributes will be copied to an index
+
     AttachmentsBucket:
       Type: AWS::S3::Bucket
       Properties:

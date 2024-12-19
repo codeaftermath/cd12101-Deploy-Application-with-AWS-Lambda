@@ -1,7 +1,7 @@
 import { DynamoDB } from '@aws-sdk/client-dynamodb'
 import {
   DeleteCommand,
-  ScanCommand,
+  QueryCommand,
   PutCommand,
   DynamoDBDocumentClient
 } from '@aws-sdk/lib-dynamodb'
@@ -51,10 +51,11 @@ export class TodoRepository {
       ExpressionAttributeValues: {
         ':userId': userId
       },
-      FilterExpression: 'userId = :userId',
-      TableName: this.tableName
+      KeyConditionExpression: 'userId = :userId',
+      TableName: this.tableName,
+      ConsistentRead: true
     }
-    const command = new ScanCommand(input)
+    const command = new QueryCommand(input)
     const result = await this.docClient.send(command)
     logger.info('Todo Query Result count', {
       tableName: this.tableName,
@@ -68,7 +69,8 @@ export class TodoRepository {
     const deleteCommand = new DeleteCommand({
       TableName: this.tableName,
       Key: {
-        todoId: todoId
+        userId,
+        todoId
       },
       ReturnValues: 'ALL_OLD'
     })
