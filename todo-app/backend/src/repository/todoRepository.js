@@ -1,3 +1,4 @@
+import AWSXRay from 'aws-xray-sdk-core'
 import { DynamoDB } from '@aws-sdk/client-dynamodb'
 import {
   DeleteCommand,
@@ -16,8 +17,9 @@ export class TodoRepository {
     todosTableName = process.env.TODOS_TABLE
   ) {
     this.client = client
+    this.xRayClient = AWSXRay.captureAWSv3Client(this.client)
     this.tableName = todosTableName
-    this.docClient = DynamoDBDocumentClient.from(client)
+    this.docClient = DynamoDBDocumentClient.from(this.xRayClient)
   }
 
   async upsertTodo(userId, todo) {

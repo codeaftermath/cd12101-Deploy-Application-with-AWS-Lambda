@@ -1,9 +1,13 @@
 import Axios from 'axios'
 import jsonwebtoken from 'jsonwebtoken'
 import { createLogger } from '../../utils/logger.mjs'
+import AWSXRay from 'aws-xray-sdk-core'
 import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm'
 
 const logger = createLogger('auth')
+
+const ssmClient = new SSMClient()
+const ssmXRayClient = AWSXRay.captureAWSv3Client(ssmClient)
 
 export async function handler(event) {
   try {
@@ -60,8 +64,7 @@ async function verifyToken(authHeader) {
 }
 
 async function getJwks() {
-  const client = new SSMClient()
-  const response = await client.send(
+  const response = await ssmXRayClient.send(
     new GetParameterCommand({
       Name: process.env.AUTH0_URL_SSM_PATH
     })

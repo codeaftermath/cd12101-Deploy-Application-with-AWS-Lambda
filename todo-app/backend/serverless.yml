@@ -21,6 +21,20 @@ provider:
     IMAGES_S3_BUCKET: ml-todo-app-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 60
 
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - 'xray:PutTraceSegments'
+            - 'xray:PutTelemetryRecords'
+          Resource:
+            - '*'
+
+  tracing:
+    apiGateway: true
+    lambda: true
+
 functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
