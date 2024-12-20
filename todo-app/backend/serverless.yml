@@ -15,6 +15,7 @@ provider:
   region: ${opt:region, 'us-east-1'}
 
   environment:
+    NAMESPACE: ${self:org}/${self:app}
     TODOS_TABLE: Todos-${self:provider.stage}
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
     AUTH0_URL_SSM_PATH: /udacity-todo-app/${self:provider.stage}/auth0ServiceUrl
@@ -59,6 +60,9 @@ functions:
         Action:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action: 'cloudwatch:PutMetricData'
+        Resource: '*'
 
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
@@ -76,6 +80,9 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action: 'cloudwatch:PutMetricData'
+        Resource: '*'
 
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
@@ -93,6 +100,9 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action: 'cloudwatch:PutMetricData'
+        Resource: '*'
 
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
@@ -107,6 +117,9 @@ functions:
         Action:
           - dynamodb:DeleteItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action: 'cloudwatch:PutMetricData'
+        Resource: '*'
 
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
@@ -129,6 +142,9 @@ functions:
           - dynamodb:GetItem
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action: 'cloudwatch:PutMetricData'
+        Resource: '*'
 
 resources:
   Resources:

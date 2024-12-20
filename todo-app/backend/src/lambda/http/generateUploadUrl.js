@@ -7,10 +7,15 @@ import * as todoService from '../../service/todoService.js'
 import { getUserId } from '../utils.mjs'
 import { getUploadUrl } from '../../service/generateUploadUrlService.js'
 import { createLogger } from '../../utils/logger.mjs'
+import { timeInMillis, sendLatencyMetric } from '../../utils/metrics.mjs'
 
-const logger = createLogger('generateUploadUrlHandler')
+const NAMESPACE = process.env.NAMESPACE
+const SERVICE_NAME = 'GENERATE_UPLOAD_URL_HANDLER'
+
+const logger = createLogger(SERVICE_NAME)
 
 const lambdaHandler = async (event) => {
+  const start = timeInMillis()
   try {
     const userId = getUserId(event)
     const todoId = event.pathParameters.todoId
@@ -46,6 +51,10 @@ const lambdaHandler = async (event) => {
         error: 'Unable to generate upload url'
       })
     )
+  } finally {
+    const end = timeInMillis()
+    const totalTimeInMillis = end - start
+    await sendLatencyMetric(NAMESPACE, SERVICE_NAME, totalTimeInMillis)
   }
 }
 

@@ -6,10 +6,15 @@ import createError from 'http-errors'
 import * as todoService from '../../service/todoService.js'
 import { getUserId } from '../utils.mjs'
 import { createLogger } from '../../utils/logger.mjs'
+import { timeInMillis, sendLatencyMetric } from '../../utils/metrics.mjs'
 
-const logger = createLogger('getTodoHandler')
+const NAMESPACE = process.env.NAMESPACE
+const SERVICE_NAME = 'GET_TODO_HANDLER'
+
+const logger = createLogger(SERVICE_NAME)
 
 const lambdaHandler = async (event) => {
+  const start = timeInMillis()
   try {
     const userId = getUserId(event)
     logger.info('Fetching todos', { userId })
@@ -38,6 +43,10 @@ const lambdaHandler = async (event) => {
         error: 'Server error getting todo(s)'
       })
     )
+  } finally {
+    const end = timeInMillis()
+    const totalTimeInMillis = end - start
+    await sendLatencyMetric(NAMESPACE, SERVICE_NAME, totalTimeInMillis)
   }
 }
 

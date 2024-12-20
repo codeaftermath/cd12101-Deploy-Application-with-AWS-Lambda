@@ -6,10 +6,15 @@ import createError from 'http-errors'
 import * as todoService from '../../service/todoService.js'
 import { getUserId } from '../utils.mjs'
 import { createLogger } from '../../utils/logger.mjs'
+import { timeInMillis, sendLatencyMetric } from '../../utils/metrics.mjs'
 
-const logger = createLogger('updateTodoHandler')
+const NAMESPACE = process.env.NAMESPACE
+const SERVICE_NAME = 'UPDATE_TODO_HANDLER'
+
+const logger = createLogger(SERVICE_NAME)
 
 const lambdaHandler = async (event) => {
+  const start = timeInMillis()
   try {
     const userId = getUserId(event)
     const todoId = event.pathParameters.todoId
@@ -45,6 +50,10 @@ const lambdaHandler = async (event) => {
         error: 'Server error creating todo'
       })
     )
+  } finally {
+    const end = timeInMillis()
+    const totalTimeInMillis = end - start
+    await sendLatencyMetric(NAMESPACE, SERVICE_NAME, totalTimeInMillis)
   }
 }
 
@@ -56,4 +65,3 @@ export const handler = middy()
     })
   )
   .handler(lambdaHandler)
-

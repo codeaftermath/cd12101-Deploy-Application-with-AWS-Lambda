@@ -6,17 +6,22 @@ import createError from 'http-errors'
 import * as todoService from '../../service/todoService.js'
 import { getUserId } from '../utils.mjs'
 import { createLogger } from '../../utils/logger.mjs'
+import { timeInMillis, sendLatencyMetric } from '../../utils/metrics.mjs'
 
-const logger = createLogger('deleteTodoHandler')
+const NAMESPACE = process.env.NAMESPACE
+const SERVICE_NAME = 'DELETE_TODO_HANDLER'
+
+const logger = createLogger(SERVICE_NAME)
 
 const lambdaHandler = async (event) => {
+  const start = timeInMillis()
   try {
     const userId = getUserId(event)
     const todoId = event.pathParameters.todoId
 
     logger.info('Deleting todo', {
       userId,
-      todoId,
+      todoId
     })
 
     const deletedItem = await todoService.deleteTodo(userId, todoId)
@@ -43,6 +48,10 @@ const lambdaHandler = async (event) => {
         error: 'Server error deleting todo'
       })
     )
+  } finally {
+    const end = timeInMillis()
+    const totalTimeInMillis = end - start
+    await sendLatencyMetric(NAMESPACE, SERVICE_NAME, totalTimeInMillis)
   }
 }
 
